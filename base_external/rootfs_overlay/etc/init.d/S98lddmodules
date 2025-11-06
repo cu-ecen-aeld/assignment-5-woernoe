@@ -1,0 +1,35 @@
+#! /bin/sh 
+
+
+case "$1" in
+    start)
+        echo "Starting init script for Module Loading"
+        start-stop-daemon -S -n init -a /bin/scull_load
+        echo "scull_load finished"
+        start-stop-daemon -S -n init -a /bin/module_load -- faulty
+        echo "faulty - load"
+        echo "load hello"
+        modprobe hello
+        echo "modprobe finished"
+        ;;
+    stop)
+        echo "Removing user modules"
+        start-stop-daemon -K -n scull_load
+        echo "scull_load stopped"
+        start-stop-daemon -K -n module_load
+        echo "module_load stopped"
+        start-stop-daemon -S -n init -a /bin/scull_unload
+        echo "scull unloaded"
+        start-stop-daemon -S -n init -a /bin/module_unload --  faulty
+        echo "faulte unloaded"
+        echo "remove hello"
+        #modprobe -r hello
+        rmmod hello
+        echo "hello removed"
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+esac
+exit 0
+
